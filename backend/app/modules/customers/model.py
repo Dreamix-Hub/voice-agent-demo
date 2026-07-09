@@ -4,6 +4,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base_model import BaseModel
 
+from app.modules.customers.model import Customer
+
+__all__ = ["Customer"]
 
 class Customer(BaseModel):
     __tablename__ = "customers"
