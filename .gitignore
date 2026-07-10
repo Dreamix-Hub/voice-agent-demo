@@ -11,3 +11,7 @@ wheels/
 
 # environments variables
 /backend/.env
+
+uv.lock
+.python-version
+pyproject.toml
