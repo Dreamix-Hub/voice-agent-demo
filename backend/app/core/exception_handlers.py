@@ -12,15 +12,15 @@ def register_exception_handlers(app: FastAPI):
         exc: AppException,
     ):
         return JSONResponse(
-            status_code=400,
+            status_code=exc.status_code,
             content={
-                "success": False,
-                "error": {
-                    "code": exc.code,
-                    "message": exc.message,
-                },
-            },
-        )
+            "success": False,
+            "error": {
+                "code": exc.code,
+                "message": exc.message,
+        },
+    },
+)
 
     @app.exception_handler(Exception)
     async def unexpected_exception_handler(

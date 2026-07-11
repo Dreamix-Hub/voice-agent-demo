@@ -1,10 +1,6 @@
-class AppException(Exception):
-    """Base exception for all business exceptions."""
+from http import HTTPStatus
 
-    def __init__(self, message: str, code: str):
-        self.message = message
-        self.code = code
-        super().__init__(message)
+from app.common.exceptions.base import AppException
 
 
 class CustomerAlreadyExistsError(AppException):
@@ -12,6 +8,7 @@ class CustomerAlreadyExistsError(AppException):
         super().__init__(
             message="Customer with this phone number already exists.",
             code="CUSTOMER_ALREADY_EXISTS",
+            status_code=HTTPStatus.CONFLICT,
         )
 
 
@@ -20,4 +17,5 @@ class CustomerNotFoundError(AppException):
         super().__init__(
             message="Customer not found.",
             code="CUSTOMER_NOT_FOUND",
+            status_code=HTTPStatus.NOT_FOUND,
         )
