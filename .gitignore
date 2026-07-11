@@ -10,7 +10,8 @@ wheels/
 .venv
 
 # environments variables
-/backend/.env
+backend/.env
+backend/.env.example
 
 uv.lock
 .python-version
