@@ -11,6 +11,7 @@ class CustomerCreate(BaseModel):
     phone: str = Field(
     min_length=8,
     max_length=20,
+    examples=["+923001234567"],
     )
     email: EmailStr | None = None
     notes: str | None = None
