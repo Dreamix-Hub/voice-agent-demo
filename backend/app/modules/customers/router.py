@@ -11,6 +11,9 @@ from app.modules.customers.schemas import (
     CustomerUpdate,
 )
 from app.modules.customers.services import CustomerService
+from app.common.responses import SuccessResponse
+
+from pydantic import BaseModel
 
 router = APIRouter(
     prefix="/customers",
@@ -20,62 +23,82 @@ router = APIRouter(
 repository = CustomerRepository()
 service = CustomerService(repository)
 
-
 @router.post(
     "",
-    response_model=CustomerResponse,
+    response_model=SuccessResponse[CustomerResponse],
     status_code=status.HTTP_201_CREATED,
 )
 def create_customer(
     data: CustomerCreate,
     db: Session = Depends(get_db),
 ):
-    return service.create_customer(db, data)
+    customer = service.create_customer(
+        db,
+        data,
+    )
 
+    return SuccessResponse(
+        data=CustomerResponse.model_validate(customer),
+    )
 
 @router.get(
     "",
-    response_model=list[CustomerResponse],
+    response_model=SuccessResponse[list[CustomerResponse]],
 )
 def list_customers(
     db: Session = Depends(get_db),
 ):
-    return service.list_customers(db)
+    customers = service.list_customers(db)
 
+    return SuccessResponse(
+        data=[
+            CustomerResponse.model_validate(customer)
+            for customer in customers
+        ]
+    )
 
 @router.get(
     "/{customer_id}",
-    response_model=CustomerResponse,
+    response_model=SuccessResponse[CustomerResponse],
 )
 def get_customer(
     customer_id: UUID,
     db: Session = Depends(get_db),
 ):
-    return service.get_customer(
+    customer = service.get_customer(
         db,
         customer_id,
     )
 
+    return SuccessResponse(
+        data=CustomerResponse.model_validate(customer)
+    )
 
 @router.put(
     "/{customer_id}",
-    response_model=CustomerResponse,
+    response_model=SuccessResponse[CustomerResponse],
 )
 def update_customer(
     customer_id: UUID,
     data: CustomerUpdate,
     db: Session = Depends(get_db),
 ):
-    return service.update_customer(
+    customer = service.update_customer(
         db,
         customer_id,
         data,
     )
 
+    return SuccessResponse(
+        data=CustomerResponse.model_validate(customer)
+    )
+
+class MessageResponse(BaseModel):
+    message: str
 
 @router.delete(
     "/{customer_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=SuccessResponse[MessageResponse],
 )
 def delete_customer(
     customer_id: UUID,
@@ -86,4 +109,8 @@ def delete_customer(
         customer_id,
     )
 
-    return None
+    return SuccessResponse(
+        data=MessageResponse(
+            message="Customer deleted successfully."
+        )
+    )
