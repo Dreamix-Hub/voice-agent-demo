@@ -6,8 +6,8 @@ from app.common.exceptions import (
     CustomerAlreadyExistsError,
     CustomerNotFoundError,
 )
-from app.modules.customers.model import Customer
-from app.modules.customers.repositories import CustomerRepository
+from app.modules.customers.models import Customer
+from app.modules.customers.repository import CustomerRepository
 from app.modules.customers.schemas import (
     CustomerCreate,
     CustomerUpdate,

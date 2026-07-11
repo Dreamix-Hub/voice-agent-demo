@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
-from app.modules.customers.repositories import CustomerRepository
+from app.modules.customers.repository import CustomerRepository
 from app.modules.customers.schemas import (
     CustomerCreate,
     CustomerResponse,
     CustomerUpdate,
 )
-from app.modules.customers.services import CustomerService
+from app.modules.customers.service import CustomerService
 from app.common.responses import SuccessResponse
 
 from pydantic import BaseModel
