@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.core.exception_handlers import register_exception_handlers
 from app.modules.customers.router import router as customer_router
+from app.modules.business.router import router as business_router
 
 app = FastAPI(
     title="AI Voice Agent Platform",
@@ -12,6 +13,7 @@ app = FastAPI(
 register_exception_handlers(app)
 
 app.include_router(customer_router)
+app.include_router(business_router)
 
 
 @app.get("/")
