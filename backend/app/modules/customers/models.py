@@ -1,6 +1,6 @@
 from sqlalchemy import String, Text
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base_model import BaseModel
 
@@ -24,3 +24,8 @@ class Customer(BaseModel):
         Text,
         nullable=True,
     )
+    appointments = relationship(
+    "Appointment",
+    back_populates="customer",
+    cascade="all, delete-orphan",
+)
