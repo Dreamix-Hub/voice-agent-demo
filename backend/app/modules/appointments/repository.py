@@ -8,7 +8,6 @@ from app.modules.appointments.models import (
     AppointmentStatus,
 )
 
-
 class AppointmentRepository:
 
     def create(
@@ -33,18 +32,21 @@ class AppointmentRepository:
         )
 
     def get_all(
-        self,
-        db: Session,
-    ) -> list[Appointment]:
+    self,
+    db: Session,
+    skip: int = 0,
+    limit: int = 20,
+) -> list[Appointment]:
         return (
-            db.query(Appointment)
-            .order_by(
-                Appointment.appointment_date,
-                Appointment.start_time,
-            )
-            .all()
+        db.query(Appointment)
+        .order_by(
+            Appointment.appointment_date,
+            Appointment.start_time,
         )
-
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     def update(
         self,
         db: Session,
@@ -63,12 +65,12 @@ class AppointmentRepository:
         db.commit()
 
     def find_conflict(
-    self,
-    db: Session,
-    appointment_date: date,
-    start_time: time,
-    end_time: time,
-    exclude_appointment_id: UUID | None = None,
+        self,
+        db: Session,
+        appointment_date: date,
+        start_time: time,
+        end_time: time,
+        exclude_appointment_id: UUID | None = None,
 ) -> Appointment | None:
 
         query = db.query(Appointment).filter(
@@ -84,3 +86,36 @@ class AppointmentRepository:
         )
 
         return query.first()
+    
+    from datetime import date
+
+    def get_by_date(
+    self,
+    db: Session,
+    appointment_date: date,
+) -> list[Appointment]:
+        return (
+        db.query(Appointment)
+        .filter(
+            Appointment.appointment_date == appointment_date
+        )
+        .order_by(Appointment.start_time)
+        .all()
+    )
+    
+    def get_by_customer(
+        self,
+        db: Session,
+        customer_id: UUID,
+    ) -> list[Appointment]:
+        return (
+            db.query(Appointment)
+            .filter(
+                Appointment.customer_id == customer_id
+            )
+            .order_by(
+                Appointment.appointment_date,
+                Appointment.start_time,
+            )
+            .all()
+        )
