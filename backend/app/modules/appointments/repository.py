@@ -62,20 +62,25 @@ class AppointmentRepository:
         db.delete(appointment)
         db.commit()
 
-    def find_conflicting_appointment(
-        self,
-        db: Session,
-        appointment_date: date,
-        start_time: time,
-        end_time: time,
-    ) -> Appointment | None:
-        return (
-            db.query(Appointment)
-            .filter(
-                Appointment.appointment_date == appointment_date,
-                Appointment.status == AppointmentStatus.BOOKED,
-                Appointment.start_time < end_time,
-                Appointment.end_time > start_time,
-            )
-            .first()
+    def find_conflict(
+    self,
+    db: Session,
+    appointment_date: date,
+    start_time: time,
+    end_time: time,
+    exclude_appointment_id: UUID | None = None,
+) -> Appointment | None:
+
+        query = db.query(Appointment).filter(
+        Appointment.appointment_date == appointment_date,
+        Appointment.status == AppointmentStatus.BOOKED,
+        Appointment.start_time < end_time,
+        Appointment.end_time > start_time,
+    )
+
+        if exclude_appointment_id:
+            query = query.filter(
+            Appointment.id != exclude_appointment_id
         )
+
+        return query.first()
