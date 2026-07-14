@@ -32,21 +32,21 @@ class AppointmentRepository:
         )
 
     def get_all(
-    self,
-    db: Session,
-    skip: int = 0,
-    limit: int = 20,
-) -> list[Appointment]:
+        self,
+        db: Session,
+        skip: int = 0,
+        limit: int = 20,
+    ) -> list[Appointment]:
         return (
-        db.query(Appointment)
-        .order_by(
-            Appointment.appointment_date,
-            Appointment.start_time,
+            db.query(Appointment)
+            .order_by(
+                Appointment.appointment_date,
+                Appointment.start_time,
+            )
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
     def update(
         self,
         db: Session,
@@ -71,38 +71,34 @@ class AppointmentRepository:
         start_time: time,
         end_time: time,
         exclude_appointment_id: UUID | None = None,
-) -> Appointment | None:
+    ) -> Appointment | None:
 
         query = db.query(Appointment).filter(
-        Appointment.appointment_date == appointment_date,
-        Appointment.status == AppointmentStatus.BOOKED,
-        Appointment.start_time < end_time,
-        Appointment.end_time > start_time,
-    )
-
-        if exclude_appointment_id:
-            query = query.filter(
-            Appointment.id != exclude_appointment_id
+            Appointment.appointment_date == appointment_date,
+            Appointment.status == AppointmentStatus.BOOKED,
+            Appointment.start_time < end_time,
+            Appointment.end_time > start_time,
         )
+
+        if exclude_appointment_id is not None:
+            query = query.filter(
+                Appointment.id != exclude_appointment_id
+            )
 
         return query.first()
-    
-    from datetime import date
 
     def get_by_date(
-    self,
-    db: Session,
-    appointment_date: date,
-) -> list[Appointment]:
+        self,
+        db: Session,
+        appointment_date: date,
+    ) -> list[Appointment]:
         return (
-        db.query(Appointment)
-        .filter(
-            Appointment.appointment_date == appointment_date
+            db.query(Appointment)
+            .filter(Appointment.appointment_date == appointment_date)
+            .order_by(Appointment.start_time)
+            .all()
         )
-        .order_by(Appointment.start_time)
-        .all()
-    )
-    
+
     def get_by_customer(
         self,
         db: Session,
