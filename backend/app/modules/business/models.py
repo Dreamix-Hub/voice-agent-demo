@@ -83,3 +83,9 @@ class Business(Base):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
+    
+    buffer_time: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False
+    )

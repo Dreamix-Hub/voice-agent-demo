@@ -1,0 +1,81 @@
+from datetime import date, time
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
+from app.modules.appointments.models import (
+    Appointment,
+    AppointmentStatus,
+)
+
+
+class AppointmentRepository:
+
+    def create(
+        self,
+        db: Session,
+        appointment: Appointment,
+    ) -> Appointment:
+        db.add(appointment)
+        db.commit()
+        db.refresh(appointment)
+        return appointment
+
+    def get_by_id(
+        self,
+        db: Session,
+        appointment_id: UUID,
+    ) -> Appointment | None:
+        return (
+            db.query(Appointment)
+            .filter(Appointment.id == appointment_id)
+            .first()
+        )
+
+    def get_all(
+        self,
+        db: Session,
+    ) -> list[Appointment]:
+        return (
+            db.query(Appointment)
+            .order_by(
+                Appointment.appointment_date,
+                Appointment.start_time,
+            )
+            .all()
+        )
+
+    def update(
+        self,
+        db: Session,
+        appointment: Appointment,
+    ) -> Appointment:
+        db.commit()
+        db.refresh(appointment)
+        return appointment
+
+    def delete(
+        self,
+        db: Session,
+        appointment: Appointment,
+    ) -> None:
+        db.delete(appointment)
+        db.commit()
+
+    def find_conflicting_appointment(
+        self,
+        db: Session,
+        appointment_date: date,
+        start_time: time,
+        end_time: time,
+    ) -> Appointment | None:
+        return (
+            db.query(Appointment)
+            .filter(
+                Appointment.appointment_date == appointment_date,
+                Appointment.status == AppointmentStatus.BOOKED,
+                Appointment.start_time < end_time,
+                Appointment.end_time > start_time,
+            )
+            .first()
+        )
