@@ -7,11 +7,23 @@ from .business import (
     BusinessAlreadyExistsError,
     BusinessNotFoundError
 )
+from .appointment import (
+    AppointmentCompletedError,
+    AppointmentConflictError,
+    AppointmentNotFoundError,
+    BusinessInactiveError,
+    OutsideBusinessHoursError,
+)
 
 __all__ = [
     "AppException",
     "CustomerAlreadyExistsError",
     "CustomerNotFoundError",
     "BusinessAlreadyExistsError",
-    "BusinessNotFoundError"
+    "BusinessNotFoundError",
+    "AppointmentCompletedError",
+    "AppointmentConflictError",
+    "AppointmentNotFoundError",
+    "BusinessInactiveError",
+    "OutsideBusinessHoursError",
 ]
