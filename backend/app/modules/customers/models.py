@@ -24,6 +24,7 @@ class Customer(BaseModel):
         Text,
         nullable=True,
     )
+    
     appointments = relationship(
     "Appointment",
     back_populates="customer",
