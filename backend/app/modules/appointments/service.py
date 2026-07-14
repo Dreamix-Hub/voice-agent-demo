@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.common.exceptions import (
     AppointmentConflictError,
     OutsideBusinessHoursError,
+    AppointmentNotFoundError,
+    BusinessInactiveError,
 )
 from app.common.utils.business import is_within_business_hours
 from app.common.utils.datetime import calculate_end_time
@@ -94,3 +96,24 @@ class AppointmentService:
             db,
             appointment,
         )
+        
+    def get_all_appointments(
+    self,
+    db: Session,
+    ):
+        return self.repository.get_all(db)   
+    
+    def get_appointment(
+    self,
+    db: Session,
+    appointment_id: UUID,
+):
+        appointment = self.repository.get_by_id(
+        db,
+        appointment_id,
+    )
+
+        if not appointment:
+            raise AppointmentNotFoundError()
+
+        return appointment
