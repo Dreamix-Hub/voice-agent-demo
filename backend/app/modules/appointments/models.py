@@ -77,3 +77,9 @@ class Appointment(Base):
         "Customer",
         back_populates="appointments",
     )
+    
+    conversation = relationship(
+    "Conversation",
+    back_populates="appointment",
+    uselist=False,
+)

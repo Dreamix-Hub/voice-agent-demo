@@ -30,3 +30,7 @@ class Customer(BaseModel):
     back_populates="customer",
     cascade="all, delete-orphan",
 )
+    conversations = relationship(
+    "Conversation",
+    back_populates="customer",
+)
