@@ -2,11 +2,12 @@ from fastapi import FastAPI
 
 from app.core.exception_handlers import register_exception_handlers
 from app.api.v1.router import api_router
+from app.core import settings
 
 app = FastAPI(
-    title="AI Voice Agent Platform",
+    title=settings.APP_NAME,
     description="Backend API for AI Receptionist",
-    version="1.0.0",
+    version=settings.APP_VERSION,
 )
 
 register_exception_handlers(app)
