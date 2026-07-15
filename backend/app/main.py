@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 
 from app.core.exception_handlers import register_exception_handlers
-from app.modules.customers.router import router as customer_router
-from app.modules.business.router import router as business_router
-from app.modules.appointments.router import router as appointment_router
+from app.api.v1.router import api_router
 
 app = FastAPI(
     title="AI Voice Agent Platform",
@@ -13,15 +11,17 @@ app = FastAPI(
 
 register_exception_handlers(app)
 
-app.include_router(customer_router)
-app.include_router(business_router)
-app.include_router(appointment_router)
-
+app.include_router(
+    api_router,
+    prefix="/api/v1",
+)
 
 @app.get("/")
 def root():
     return {
-        "message": "AI Voice Agent API is running."
+        "name": "AI Receptionist API",
+        "version": "1.0.0",
+        "status": "running",
     }
 
 
