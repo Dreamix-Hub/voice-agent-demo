@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-import uuid
-from datetime import datetime
-
 from sqlalchemy.orm import Session
 
-from app.modules.appointments.service import AppointmentService
-from app.modules.conversations.enums import (
-    ConversationProvider,
-    ConversationStatus,
-)
 from app.common.exceptions import (
+    ConversationAlreadyExistsError,
     ConversationNotFoundError,
-    DuplicateConversationError,
 )
+from app.modules.appointments.service import AppointmentService
+from app.modules.conversations.dtos import (
+    AttachConversationContentCommand,
+    CompleteConversationCommand,
+    LinkAppointmentCommand,
+    StartConversationCommand,
+)
+from app.modules.conversations.enums import ConversationStatus
 from app.modules.conversations.models import (
     Conversation,
     ConversationContent,
@@ -37,32 +37,29 @@ class ConversationService:
         self,
         db: Session,
         *,
-        customer_id: uuid.UUID,
-        provider: ConversationProvider,
-        external_call_id: str,
-        started_at: datetime,
+        command: StartConversationCommand,
     ) -> Conversation:
         """
-        Called when the AI provider notifies us that a call has started.
+        Creates a new conversation when an AI provider starts a call.
         """
 
         customer = self.customer_service.get_customer(
             db=db,
-            customer_id=customer_id,
+            customer_id=command.customer_id,
         )
 
         if self.repository.exists_by_external_call_id(
             db=db,
-            external_call_id=external_call_id,
+            external_call_id=command.external_call_id,
         ):
-            raise DuplicateConversationError()
+            raise ConversationAlreadyExistsError()
 
         conversation = Conversation(
             customer_id=customer.id,
-            provider=provider,
-            external_call_id=external_call_id,
+            provider=command.provider,
+            external_call_id=command.external_call_id,
             status=ConversationStatus.STARTED,
-            started_at=started_at,
+            started_at=command.started_at,
         )
 
         return self.repository.create(
@@ -74,22 +71,20 @@ class ConversationService:
         self,
         db: Session,
         *,
-        external_call_id: str,
-        ended_at: datetime,
-        duration_seconds: int,
+        command: CompleteConversationCommand,
     ) -> Conversation:
         """
-        Called when the call has finished.
+        Marks a conversation as completed.
         """
 
         conversation = self.get_by_external_call_id(
             db=db,
-            external_call_id=external_call_id,
+            external_call_id=command.external_call_id,
         )
 
         conversation.status = ConversationStatus.COMPLETED
-        conversation.ended_at = ended_at
-        conversation.duration_seconds = duration_seconds
+        conversation.ended_at = command.ended_at
+        conversation.duration_seconds = command.duration_seconds
 
         return self.repository.update(
             db=db,
@@ -100,26 +95,23 @@ class ConversationService:
         self,
         db: Session,
         *,
-        external_call_id: str,
-        transcript: str,
-        ai_summary: str | None,
-        recording_url: str | None,
+        command: AttachConversationContentCommand,
     ) -> Conversation:
         """
-        Stores transcript, AI summary and recording URL after the call ends.
+        Stores transcript, AI summary and recording URL.
         """
 
         conversation = self.get_by_external_call_id(
             db=db,
-            external_call_id=external_call_id,
+            external_call_id=command.external_call_id,
         )
 
         if conversation.content is None:
             conversation.content = ConversationContent()
 
-        conversation.content.transcript = transcript
-        conversation.content.ai_summary = ai_summary
-        conversation.content.recording_url = recording_url
+        conversation.content.transcript = command.transcript
+        conversation.content.ai_summary = command.ai_summary
+        conversation.content.recording_url = command.recording_url
 
         return self.repository.update(
             db=db,
@@ -130,21 +122,20 @@ class ConversationService:
         self,
         db: Session,
         *,
-        external_call_id: str,
-        appointment_id: uuid.UUID,
+        command: LinkAppointmentCommand,
     ) -> Conversation:
         """
-        Links an appointment created during the call to the conversation.
+        Links an appointment to a conversation.
         """
 
         conversation = self.get_by_external_call_id(
             db=db,
-            external_call_id=external_call_id,
+            external_call_id=command.external_call_id,
         )
 
         appointment = self.appointment_service.get_appointment(
             db=db,
-            appointment_id=appointment_id,
+            appointment_id=command.appointment_id,
         )
 
         conversation.appointment_id = appointment.id
@@ -161,7 +152,7 @@ class ConversationService:
         external_call_id: str,
     ) -> Conversation:
         """
-        Returns a conversation by external call ID or raises an exception.
+        Returns a conversation by its external call ID.
         """
 
         conversation = self.repository.get_by_external_call_id(

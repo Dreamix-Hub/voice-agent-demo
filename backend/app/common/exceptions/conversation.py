@@ -55,3 +55,11 @@ class InvalidConversationStatusError(AppException):
             code="INVALID_CONVERSATION_STATUS",
             status_code=HTTPStatus.BAD_REQUEST,
         )
+
+class ConversationAlreadyExistsError(AppException):
+    def __init__(self):
+        super().__init__(
+            message=f"Conversation already exist.",
+            code="CONVERSATION_ALREADY_EXISTS",
+            status_code=HTTPStatus.CONFLICT,
+        )

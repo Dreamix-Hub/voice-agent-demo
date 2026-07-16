@@ -142,7 +142,7 @@ class CustomerService:
             customer,
         )
     
-    def get_or_create_by_phone(
+    def get_or_create_by_phone_number(
         self,
         db: Session,
         *,

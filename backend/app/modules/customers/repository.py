@@ -16,7 +16,7 @@ class CustomerRepository:
         return db.query(Customer).filter(Customer.id == customer_id).first()
 
     def get_by_phone(self, db: Session, phone: str) -> Customer | None:
-        return db.query(Customer).filter(Customer.phone == phone).first()
+        return db.query(Customer).filter(Customer.phone_number == phone).first()
 
     def get_all(self, db: Session) -> list[Customer]:
         return (

@@ -20,7 +20,8 @@ from .conversation import (
     ConversationContentAlreadyExistsError,
     ConversationNotFoundError,
     InvalidConversationStatusError,
-    AppointmentAlreadyLinkedError
+    AppointmentAlreadyLinkedError,
+    ConversationAlreadyExistsError
 )
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "ConversationNotFoundError",
     "InvalidConversationStatusError",
     "AppointmentAlreadyLinkedError",
+    "ConversationAlreadyExistsError"
 ]
