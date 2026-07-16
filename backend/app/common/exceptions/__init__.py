@@ -14,6 +14,14 @@ from .appointment import (
     BusinessInactiveError,
     OutsideBusinessHoursError,
 )
+from .conversation import (
+    DuplicateConversationError,
+    ConversationAlreadyCompletedError,
+    ConversationContentAlreadyExistsError,
+    ConversationNotFoundError,
+    InvalidConversationStatusError,
+    AppointmentAlreadyLinkedError
+)
 
 __all__ = [
     "AppException",
@@ -26,4 +34,10 @@ __all__ = [
     "AppointmentNotFoundError",
     "BusinessInactiveError",
     "OutsideBusinessHoursError",
+    "DuplicateConversationError",
+    "ConversationAlreadyCompletedError",
+    "ConversationContentAlreadyExistsError",
+    "ConversationNotFoundError",
+    "InvalidConversationStatusError",
+    "AppointmentAlreadyLinkedError",
 ]
