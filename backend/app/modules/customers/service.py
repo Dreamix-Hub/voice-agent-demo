@@ -48,7 +48,7 @@ class CustomerService:
 
         customer = Customer(
             name=data.name,
-            phone=data.phone,
+            phone_number=data.phone,
             email=data.email,
             notes=data.notes,
         )
@@ -161,10 +161,11 @@ class CustomerService:
             return customer
 
         customer = Customer(
+            name=phone_number,
             phone_number=phone_number,
-    )
+        )
 
         return self.repository.create(
             db=db,
             customer=customer,
-    )
+        )

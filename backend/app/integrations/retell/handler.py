@@ -20,11 +20,14 @@ from app.modules.customers.service import CustomerService
 class RetellHandler:
     def __init__(
         self,
+        appointment_service: AppointmentService,
         conversation_service: ConversationService,
         customer_service: CustomerService,
     ):
+        self.appointment_service = appointment_service
         self.conversation_service = conversation_service
         self.customer_service = customer_service
+
 
     def handle_call_started(
         self,

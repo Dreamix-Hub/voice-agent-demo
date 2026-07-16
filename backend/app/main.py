@@ -2,9 +2,9 @@ from fastapi import FastAPI
 
 from app.core.exception_handlers import register_exception_handlers
 from app.api.v1.router import api_router
+from app.modules.webhooks import router as webhooks_router
 from app.core import settings
 
-from app.core.logger import logger
 from app.core.lifespan import lifespan
 from app.middlewares.logging import logging_middleware
 
@@ -23,6 +23,7 @@ app.include_router(
     api_router,
     prefix="/api/v1",
 )
+app.include_router(webhooks_router.router)
 
 @app.get("/")
 def root():
