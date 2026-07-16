@@ -97,7 +97,7 @@ class CustomerService:
         # Prevent duplicate phone numbers
         if (
             data.phone
-            and data.phone != customer.phone
+            and data.phone != customer.phone_number
         ):
             existing_customer = self.repository.get_by_phone(
                 db,
@@ -141,3 +141,30 @@ class CustomerService:
             db,
             customer,
         )
+    
+    def get_or_create_by_phone(
+        self,
+        db: Session,
+        *,
+        phone_number: str) -> Customer:
+        """
+            Returns an existing customer by phone number or creates
+            a new customer if one does not exist.
+        """
+
+        customer = self.repository.get_by_phone_number(
+            db=db,
+            phone_number=phone_number,
+        )
+
+        if customer:
+            return customer
+
+        customer = Customer(
+            phone_number=phone_number,
+    )
+
+        return self.repository.create(
+            db=db,
+            customer=customer,
+    )

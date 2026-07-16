@@ -9,10 +9,11 @@ class Customer(BaseModel):
 
     name: Mapped[str] = mapped_column(String(100))
 
-    phone: Mapped[str] = mapped_column(
+    phone_number: Mapped[str] = mapped_column(
         String(20),
         unique=True,
         index=True,
+        nullable=True
     )
 
     email: Mapped[str | None] = mapped_column(

@@ -33,3 +33,13 @@ class CustomerRepository:
     def delete(self, db: Session, customer: Customer) -> None:
         db.delete(customer)
         db.commit()
+    
+    def get_by_phone_number(
+        self,
+        db: Session,
+        phone_number: str) -> Customer | None:
+        return (
+            db.query(Customer)
+            .filter(Customer.phone_number == phone_number)
+            .first()
+    )
