@@ -23,7 +23,7 @@ from .conversation import (
     AppointmentAlreadyLinkedError,
     ConversationAlreadyExistsError
 )
-
+from .retell import InvalidWebhookSignatureError
 __all__ = [
     "AppException",
     "CustomerAlreadyExistsError",
@@ -41,5 +41,6 @@ __all__ = [
     "ConversationNotFoundError",
     "InvalidConversationStatusError",
     "AppointmentAlreadyLinkedError",
-    "ConversationAlreadyExistsError"
+    "ConversationAlreadyExistsError",
+    "InvalidWebhookSignatureError"
 ]

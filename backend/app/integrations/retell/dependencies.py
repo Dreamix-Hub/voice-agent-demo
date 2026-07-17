@@ -17,6 +17,14 @@ from app.core.dependencies.customer import (
 )
 from app.modules.customers.service import CustomerService
 
+from app.integrations.retell.verifier import (
+    RetellWebhookVerifier,
+)
+from app.integrations.retell.dependencies import (
+    get_retell_webhook_verifier
+)
+from app.integrations.retell.client import RetellClient
+
 
 def get_retell_handler(
     conversation_service: ConversationService = Depends(
@@ -40,7 +48,17 @@ def get_retell_webhook_service(
     handler: RetellHandler = Depends(
         get_retell_handler,
     ),
+    verifier: RetellWebhookVerifier = Depends(
+        get_retell_webhook_verifier
+    )
 ) -> RetellWebhookService:
     return RetellWebhookService(
         handler=handler,
+        verifier=verifier
     )
+    
+def get_retell_webhook_verifier() -> RetellWebhookVerifier:
+    return RetellWebhookVerifier()
+
+def get_retell_client() -> RetellClient:
+    return RetellClient()
