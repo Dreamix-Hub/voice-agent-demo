@@ -10,6 +10,7 @@ from app.modules.business.schemas import (
     BusinessUpdate,
 )
 from app.modules.business.service import BusinessService
+from uuid import UUID
 
 router = APIRouter(
     prefix="/business",
@@ -41,9 +42,10 @@ def create_business(
     response_model=SuccessResponse[BusinessResponse],
 )
 def get_business(
+    business_id: UUID,
     db: Session = Depends(get_db),
 ):
-    business = service.get_business(db)
+    business = service.get_business(db, business_id=business_id)
 
     return SuccessResponse(
         data=BusinessResponse.model_validate(business)
@@ -55,10 +57,11 @@ def get_business(
     response_model=SuccessResponse[BusinessResponse],
 )
 def update_business(
+    business_id: UUID,
     data: BusinessUpdate,
     db: Session = Depends(get_db),
 ):
-    business = service.update_business(db, data)
+    business = service.update_business(db, data, business_id)
 
     return SuccessResponse(
         data=BusinessResponse.model_validate(business)

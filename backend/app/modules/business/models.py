@@ -4,7 +4,7 @@ from datetime import time
 
 from sqlalchemy import Boolean, DateTime, Integer, String, Text, Time
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
@@ -89,3 +89,8 @@ class Business(Base):
         default=0,
         nullable=False
     )
+    appointments = relationship(
+    "Appointment",
+    back_populates="business",
+    cascade="all, delete-orphan",
+)

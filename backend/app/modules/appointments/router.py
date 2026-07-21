@@ -97,11 +97,13 @@ def get_appointment(
 )
 def update_appointment(
     appointment_id: UUID,
+    business_id: UUID,
     data: AppointmentUpdate,
     db: Session = Depends(get_db),
 ):
     appointment = appointment_service.update_appointment(
         db=db,
+        business_id=business_id,
         appointment_id=appointment_id,
         data=data,
     )
@@ -172,11 +174,13 @@ def get_appointments_by_date(
 )
 def get_customer_appointments(
     customer_id: UUID,
+    business_id: UUID,
     db: Session = Depends(get_db),
 ):
     appointments = appointment_service.get_customer_appointments(
         db,
         customer_id,
+        business_id
     )
 
     return SuccessResponse(

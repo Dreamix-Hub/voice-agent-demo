@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -24,7 +24,10 @@ from app.modules.appointments.schemas import (
 from app.modules.business.service import BusinessService
 from app.modules.customers.service import CustomerService
 
-from datetime import date
+from app.modules.appointments.commands import (
+    GetAvailableSlotsCommand,
+)
+from app.core.constants import DEFAULT_APPOINTMENT_DURATION
 class AppointmentService:
 
     def __init__(
@@ -50,7 +53,7 @@ class AppointmentService:
         )
 
         # 2. Load business settings
-        business = self.business_service.get_business(db)
+        business = self.business_service.get_business(db, business_id=data.business_id)
 
         # 3. Check if business is active
         if not business.is_active:
@@ -75,6 +78,7 @@ class AppointmentService:
         # 6. Check for conflicting appointment
         conflict = self.repository.find_conflict(
             db=db,
+            business_id=data.business_id,
             appointment_date=data.appointment_date,
             start_time=data.start_time,
             end_time=end_time,
@@ -86,6 +90,7 @@ class AppointmentService:
         # 7. Create appointment
         appointment = Appointment(
             customer_id=customer.id,
+            business_id=data.business_id,
             appointment_date=data.appointment_date,
             start_time=data.start_time,
             end_time=end_time,
@@ -119,10 +124,12 @@ class AppointmentService:
             raise AppointmentNotFoundError()
 
         return appointment
+    
     def update_appointment(
     self,
     db: Session,
     appointment_id: UUID,
+    business_id: UUID,
     data: AppointmentUpdate,
     ) -> Appointment:
 
@@ -131,7 +138,7 @@ class AppointmentService:
         if appointment.status != AppointmentStatus.BOOKED:
             raise AppointmentCompletedError()
 
-        business = self.business_service.get_business(db)
+        business = self.business_service.get_business(db, business_id=business_id)
 
         appointment_date = (
             data.appointment_date
@@ -161,6 +168,7 @@ class AppointmentService:
 
         conflict = self.repository.find_conflict(
             db=db,
+            business_id=business_id,
             exclude_appointment_id=appointment.id,
             appointment_date=appointment_date,
             start_time=start_time,
@@ -236,6 +244,7 @@ class AppointmentService:
     self,
     db: Session,
     customer_id: UUID,
+    business_id: UUID,
 ):
     # Verify the customer exists
         self.customer_service.get_customer(
@@ -247,3 +256,69 @@ class AppointmentService:
         db,
         customer_id,
     )
+        
+    def get_available_slots(
+        self,
+        db: Session,
+        *,
+        command: GetAvailableSlotsCommand,
+    ) -> list[datetime]:
+        """
+        Returns all available appointment start times for the given date.
+        """
+
+        business = self.business_service.get_business(
+            db=db,
+            business_id=command.business_id,
+    )
+
+        appointments = self.repository.get_for_date(
+            db=db,
+            business_id=business.id,
+            target_date=command.target_date,
+        )
+        print("Appointments found:", len(appointments))
+
+        for appointment in appointments:
+            print(
+                {
+                    "business_id": appointment.business_id,
+                    "date": appointment.appointment_date,
+                    "start": appointment.start_time,
+                    "end": appointment.end_time,
+                    "status": appointment.status,
+                }
+            )
+
+        slot_duration = timedelta(
+            minutes=business.appointment_duration,
+)
+        current = datetime.combine(
+            command.target_date,
+            business.opening_time,
+        ).replace(microsecond=0)
+
+        closing = datetime.combine(
+            command.target_date,
+            business.closing_time,
+        ).replace(microsecond=0)
+
+        available_slots: list[datetime] = []
+
+        while current + slot_duration <= closing:
+
+            current_time = current.time()
+            slot_end_time = (current + slot_duration).time()
+
+            has_conflict = any(
+                appointment.start_time < slot_end_time
+                and appointment.end_time > current_time
+                for appointment in appointments
+            )
+
+            if not has_conflict:
+                available_slots.append(current)
+
+            current += slot_duration
+
+        return available_slots

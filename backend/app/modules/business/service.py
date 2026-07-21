@@ -11,6 +11,7 @@ from app.modules.business.schemas import (
     BusinessUpdate,
 )
 
+from uuid import UUID
 
 class BusinessService:
 
@@ -20,11 +21,9 @@ class BusinessService:
     def create_business(
         self,
         db: Session,
+        # business_id: UUID,
         data: BusinessCreate,
     ) -> Business:
-
-        if self.repository.get(db):
-            raise BusinessAlreadyExistsError()
 
         business = Business(
             business_name=data.business_name,
@@ -40,14 +39,18 @@ class BusinessService:
             is_active=data.is_active,
         )
 
+        if self.repository.get(db, business.id):
+            raise BusinessAlreadyExistsError()
+        
         return self.repository.create(db, business)
 
     def get_business(
         self,
         db: Session,
+        business_id: UUID,
     ) -> Business:
 
-        business = self.repository.get(db)
+        business = self.repository.get(db, business_id=business_id)
 
         if not business:
             raise BusinessNotFoundError()
@@ -58,9 +61,10 @@ class BusinessService:
         self,
         db: Session,
         data: BusinessUpdate,
+        business_id: UUID,
     ) -> Business:
 
-        business = self.repository.get(db)
+        business = self.repository.get(db, business_id=business_id)
 
         if not business:
             raise BusinessNotFoundError()
@@ -71,3 +75,4 @@ class BusinessService:
             setattr(business, field, value)
 
         return self.repository.update(db, business)
+    

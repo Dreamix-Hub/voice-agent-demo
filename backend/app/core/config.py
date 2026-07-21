@@ -6,15 +6,15 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     
     DATABASE_URL: str
-    OPENAI_API_KEY: str 
-    RETELL_API_KEY: str
-    RETELL_WEBHOOK_SECRET: str 
+    OPENAI_API_KEY: str = ''
+    RETELL_API_KEY: str = ''
+    RETELL_WEBHOOK_SECRET: str = '' 
     
     ENVIRONMENT: Literal[
     "development",
     "staging",
     "production"
-] = "development"
+    ] = "development"
     
     model_config = SettingsConfigDict(
         env_file=".env",

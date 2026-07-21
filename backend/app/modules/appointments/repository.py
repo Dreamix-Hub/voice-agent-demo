@@ -1,8 +1,10 @@
-from datetime import date, time
-from uuid import UUID
+from datetime import date, time, datetime
+import uuid
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.modules.appointments.models import Appointment
 from app.modules.appointments.models import (
     Appointment,
     AppointmentStatus,
@@ -23,7 +25,7 @@ class AppointmentRepository:
     def get_by_id(
         self,
         db: Session,
-        appointment_id: UUID,
+        appointment_id: uuid.UUID,
     ) -> Appointment | None:
         return (
             db.query(Appointment)
@@ -70,10 +72,12 @@ class AppointmentRepository:
         appointment_date: date,
         start_time: time,
         end_time: time,
-        exclude_appointment_id: UUID | None = None,
+        business_id: uuid.UUID,
+        exclude_appointment_id: uuid.UUID | None = None,
     ) -> Appointment | None:
 
         query = db.query(Appointment).filter(
+            Appointment.business_id == business_id,
             Appointment.appointment_date == appointment_date,
             Appointment.status == AppointmentStatus.BOOKED,
             Appointment.start_time < end_time,
@@ -102,7 +106,7 @@ class AppointmentRepository:
     def get_by_customer(
         self,
         db: Session,
-        customer_id: UUID,
+        customer_id: uuid.UUID,
     ) -> list[Appointment]:
         return (
             db.query(Appointment)
@@ -115,3 +119,21 @@ class AppointmentRepository:
             )
             .all()
         )
+
+    def get_for_date(
+    self,
+    db: Session,
+    *,
+    business_id: uuid.UUID,
+    target_date: date,
+) -> list[Appointment]:
+        statement = (
+            select(Appointment)
+            .where(
+                Appointment.business_id == business_id,
+                Appointment.appointment_date == target_date,
+            )
+            .order_by(Appointment.start_time)
+    )
+
+        return list(db.scalars(statement).all())
