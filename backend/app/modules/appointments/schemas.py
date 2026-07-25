@@ -8,7 +8,6 @@ from app.modules.appointments.models import AppointmentStatus
 
 class AppointmentCreate(BaseModel):
     customer_id: UUID
-    business_id: UUID
     appointment_date: date
     start_time: time
     reason: str = Field(min_length=3, max_length=255)
@@ -29,7 +28,6 @@ class AppointmentStatusUpdate(BaseModel):
 class AppointmentResponse(BaseModel):
     id: UUID
     customer_id: UUID
-    business_id: UUID
     appointment_date: date
     start_time: time
     end_time: time

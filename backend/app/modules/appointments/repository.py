@@ -72,12 +72,10 @@ class AppointmentRepository:
         appointment_date: date,
         start_time: time,
         end_time: time,
-        business_id: uuid.UUID,
         exclude_appointment_id: uuid.UUID | None = None,
     ) -> Appointment | None:
 
         query = db.query(Appointment).filter(
-            Appointment.business_id == business_id,
             Appointment.appointment_date == appointment_date,
             Appointment.status == AppointmentStatus.BOOKED,
             Appointment.start_time < end_time,
@@ -124,13 +122,11 @@ class AppointmentRepository:
     self,
     db: Session,
     *,
-    business_id: uuid.UUID,
     target_date: date,
 ) -> list[Appointment]:
         statement = (
             select(Appointment)
             .where(
-                Appointment.business_id == business_id,
                 Appointment.appointment_date == target_date,
             )
             .order_by(Appointment.start_time)

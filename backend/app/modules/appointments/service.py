@@ -78,7 +78,6 @@ class AppointmentService:
         # 6. Check for conflicting appointment
         conflict = self.repository.find_conflict(
             db=db,
-            business_id=data.business_id,
             appointment_date=data.appointment_date,
             start_time=data.start_time,
             end_time=end_time,
@@ -90,7 +89,6 @@ class AppointmentService:
         # 7. Create appointment
         appointment = Appointment(
             customer_id=customer.id,
-            business_id=data.business_id,
             appointment_date=data.appointment_date,
             start_time=data.start_time,
             end_time=end_time,
@@ -129,7 +127,6 @@ class AppointmentService:
     self,
     db: Session,
     appointment_id: UUID,
-    business_id: UUID,
     data: AppointmentUpdate,
     ) -> Appointment:
 
@@ -168,7 +165,6 @@ class AppointmentService:
 
         conflict = self.repository.find_conflict(
             db=db,
-            business_id=business_id,
             exclude_appointment_id=appointment.id,
             appointment_date=appointment_date,
             start_time=start_time,
@@ -244,7 +240,6 @@ class AppointmentService:
     self,
     db: Session,
     customer_id: UUID,
-    business_id: UUID,
 ):
     # Verify the customer exists
         self.customer_service.get_customer(
@@ -273,21 +268,8 @@ class AppointmentService:
 
         appointments = self.repository.get_for_date(
             db=db,
-            business_id=business.id,
             target_date=command.target_date,
         )
-        print("Appointments found:", len(appointments))
-
-        for appointment in appointments:
-            print(
-                {
-                    "business_id": appointment.business_id,
-                    "date": appointment.appointment_date,
-                    "start": appointment.start_time,
-                    "end": appointment.end_time,
-                    "status": appointment.status,
-                }
-            )
 
         slot_duration = timedelta(
             minutes=business.appointment_duration,

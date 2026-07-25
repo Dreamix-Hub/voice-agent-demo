@@ -31,11 +31,6 @@ class Appointment(Base):
         nullable=False,
     )
     
-    business_id: Mapped[uuid.UUID] = mapped_column(
-    UUID(as_uuid=True),
-    ForeignKey("business.id"),
-    nullable=False,
-)
     appointment_date: Mapped[date] = mapped_column(
         Date,
         nullable=False,
@@ -88,7 +83,3 @@ class Appointment(Base):
     back_populates="appointment",
     uselist=False,
 ) 
-    business = relationship(
-    "Business",
-    back_populates="appointments",
-)
