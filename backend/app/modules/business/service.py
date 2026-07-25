@@ -39,7 +39,7 @@ class BusinessService:
             is_active=data.is_active,
         )
 
-        if self.repository.get(db, business.id):
+        if self.repository.get(db):
             raise BusinessAlreadyExistsError()
         
         return self.repository.create(db, business)
@@ -47,10 +47,9 @@ class BusinessService:
     def get_business(
         self,
         db: Session,
-        business_id: UUID,
     ) -> Business:
 
-        business = self.repository.get(db, business_id=business_id)
+        business = self.repository.get(db)
 
         if not business:
             raise BusinessNotFoundError()
@@ -61,10 +60,9 @@ class BusinessService:
         self,
         db: Session,
         data: BusinessUpdate,
-        business_id: UUID,
     ) -> Business:
 
-        business = self.repository.get(db, business_id=business_id)
+        business = self.repository.get(db)
 
         if not business:
             raise BusinessNotFoundError()

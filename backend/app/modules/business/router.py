@@ -42,10 +42,9 @@ def create_business(
     response_model=SuccessResponse[BusinessResponse],
 )
 def get_business(
-    business_id: UUID,
     db: Session = Depends(get_db),
 ):
-    business = service.get_business(db, business_id=business_id)
+    business = service.get_business(db=db)
 
     return SuccessResponse(
         data=BusinessResponse.model_validate(business)

@@ -15,8 +15,8 @@ class BusinessRepository:
         db.refresh(business)
         return business
 
-    def get(self, db: Session, business_id: UUID) -> Business | None:
-        return db.query(Business).filter(Business.id == business_id).first()
+    def get(self, db: Session) -> Business | None:
+        return db.query(Business).first()
 
     def update(
         self,
