@@ -9,7 +9,6 @@ class CheckAvailabilityRequest(BaseModel):
     Request sent by an AI provider to retrieve available appointment slots.
     """
 
-    business_id: UUID
     target_date: date
 
 
@@ -35,7 +34,6 @@ class BookAppointmentRequest(BaseModel):
     Request sent by the AI to book an appointment.
     """
 
-    business_id: UUID
     customer_id: UUID
     start_time: datetime
 

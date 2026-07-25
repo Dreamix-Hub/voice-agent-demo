@@ -89,8 +89,3 @@ class Business(Base):
         default=0,
         nullable=False
     )
-    appointments = relationship(
-    "Appointment",
-    back_populates="business",
-    cascade="all, delete-orphan",
-)
