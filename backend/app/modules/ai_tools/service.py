@@ -47,7 +47,7 @@ class AIToolService:
             available_slots=[
                 AvailableSlot(
                     start_time=slot,
-                    end_time=slot + timedelta(minutes=get_business_service().get_business(db, request.business_id).appointment_duration),
+                    end_time=slot + timedelta(minutes=get_business_service().get_business(db).appointment_duration),
                 )
                 for slot in slots
             ]

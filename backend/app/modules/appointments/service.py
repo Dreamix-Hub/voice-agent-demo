@@ -53,7 +53,7 @@ class AppointmentService:
         )
 
         # 2. Load business settings
-        business = self.business_service.get_business(db, business_id=data.business_id)
+        business = self.business_service.get_business(db)
 
         # 3. Check if business is active
         if not business.is_active:
@@ -138,7 +138,7 @@ class AppointmentService:
         if appointment.status != AppointmentStatus.BOOKED:
             raise AppointmentCompletedError()
 
-        business = self.business_service.get_business(db, business_id=business_id)
+        business = self.business_service.get_business(db)
 
         appointment_date = (
             data.appointment_date
@@ -269,7 +269,6 @@ class AppointmentService:
 
         business = self.business_service.get_business(
             db=db,
-            business_id=command.business_id,
     )
 
         appointments = self.repository.get_for_date(
