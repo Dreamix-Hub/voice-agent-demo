@@ -34,7 +34,6 @@ class AIToolService:
     ) -> CheckAvailabilityResponse:
         
         command = GetAvailableSlotsCommand(
-            business_id=request.business_id,
             target_date=request.target_date,
         )
 
