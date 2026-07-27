@@ -28,16 +28,6 @@ class CheckAvailabilityResponse(BaseModel):
 
     available_slots: list[AvailableSlot] = Field(default_factory=list)
 
-class RescheduleAppointmentRequest(BaseModel):
-    appointment_id: UUID
-    new_start_time: datetime
-
-
-class RescheduleAppointmentResponse(BaseModel):
-    appointment_id: UUID
-    start_time: datetime
-    end_time: datetime
-    
 class BookAppointmentRequest(BaseModel):
     phone_number: str
     appointment_date: date
@@ -60,4 +50,18 @@ class CancelAppointmentRequest(BaseModel):
 
 class CancelAppointmentResponse(BaseModel):
     appointment_id: UUID
+    status: AppointmentStatus
+    
+class RescheduleAppointmentRequest(BaseModel):
+    external_call_id: str
+    current_appointment_date: date
+    new_appointment_date: date
+    new_start_time: time
+
+
+class RescheduleAppointmentResponse(BaseModel):
+    appointment_id: UUID
+    appointment_date: date
+    start_time: time
+    end_time: time
     status: AppointmentStatus

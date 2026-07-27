@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -27,7 +27,6 @@ from app.modules.customers.service import CustomerService
 from app.modules.appointments.commands import (
     GetAvailableSlotsCommand,
 )
-from app.core.constants import DEFAULT_APPOINTMENT_DURATION
 class AppointmentService:
 
     def __init__(
@@ -122,6 +121,84 @@ class AppointmentService:
             raise AppointmentNotFoundError()
 
         return appointment
+    
+    def _update_schedule(
+    self,
+    db: Session,
+    *,
+    appointment: Appointment,
+    appointment_date: date,
+    start_time: time,
+) -> Appointment:
+        """
+        Applies scheduling rules and updates an appointment's
+        date and time.
+        """
+
+        business = self.business_service.get_business(
+            db=db,
+        )
+
+        end_time = calculate_end_time(
+            start_time=start_time,
+            duration_minutes=business.appointment_duration,
+            buffer_minutes=business.buffer_time,
+        )
+
+        if not is_within_business_hours(
+            start_time=start_time,
+            end_time=end_time,
+            opening_time=business.opening_time,
+            closing_time=business.closing_time,
+        ):
+            raise OutsideBusinessHoursError()
+
+        conflict = self.repository.find_conflict(
+            db=db,
+            exclude_appointment_id=appointment.id,
+            appointment_date=appointment_date,
+            start_time=start_time,
+            end_time=end_time,
+        )
+
+        if conflict:
+            raise AppointmentConflictError()
+
+        appointment.appointment_date = appointment_date
+        appointment.start_time = start_time
+        appointment.end_time = end_time
+
+        return self.repository.update(
+            db=db,
+            appointment=appointment,
+        )
+    
+    def reschedule_appointment(
+    self,
+    db: Session,
+    *,
+    appointment_id: UUID,
+    appointment_date: date,
+    start_time: time,
+) -> Appointment:
+        """
+        Reschedules an existing appointment.
+        """
+
+        appointment = self.get_appointment(
+            db=db,
+            appointment_id=appointment_id,
+        )
+
+        if appointment.status != AppointmentStatus.BOOKED:
+            raise AppointmentCompletedError()
+
+        return self._update_schedule(
+            db=db,
+            appointment=appointment,
+            appointment_date=appointment_date,
+            start_time=start_time,
+        )
     
     def update_appointment(
     self,

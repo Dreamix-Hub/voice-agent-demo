@@ -7,7 +7,9 @@ from app.modules.ai_tools.schemas import (
     BookAppointmentRequest,
     BookAppointmentResponse,
     CancelAppointmentRequest,
-    CancelAppointmentResponse
+    CancelAppointmentResponse,
+    RescheduleAppointmentRequest,
+    RescheduleAppointmentResponse
 )
 from app.modules.appointments.commands import (
     GetAvailableSlotsCommand,
@@ -123,5 +125,41 @@ class AIToolService:
     
         return CancelAppointmentResponse(
             appointment_id=appointment.id,
+            status=appointment.status,
+        )
+    
+    def reschedule_appointment(
+    self,
+    db: Session,
+    *,
+    request: RescheduleAppointmentRequest,
+) -> RescheduleAppointmentResponse:
+        """
+        Reschedules a customer's appointment.
+        """
+
+        conversation = self.conversation_service.get_by_external_call_id(
+            db=db,
+            external_call_id=request.external_call_id,
+        )
+
+        appointment = self.appointment_service.get_customer_appointment_by_date(
+            db=db,
+            customer_id=conversation.customer_id,
+            appointment_date=request.current_appointment_date,
+        )
+
+        appointment = self.appointment_service.reschedule_appointment(
+            db=db,
+            appointment_id=appointment.id,
+            appointment_date=request.new_appointment_date,
+            start_time=request.new_start_time,
+        )
+
+        return RescheduleAppointmentResponse(
+            appointment_id=appointment.id,
+            appointment_date=appointment.appointment_date,
+            start_time=appointment.start_time,
+            end_time=appointment.end_time,
             status=appointment.status,
         )
