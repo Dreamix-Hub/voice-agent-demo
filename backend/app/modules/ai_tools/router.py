@@ -9,6 +9,10 @@ from app.modules.ai_tools.schemas import (
     CheckAvailabilityResponse,
 )
 from app.modules.ai_tools.service import AIToolService
+from app.modules.ai_tools.schemas import (
+    BookAppointmentRequest,
+    BookAppointmentResponse
+)
 
 router = APIRouter(
     prefix="/ai-tools",
@@ -32,6 +36,22 @@ def check_availability(
     """
 
     return service.check_availability(
+        db=db,
+        request=request,
+    )
+
+@router.post(
+    "/book-appointment",
+    response_model=BookAppointmentResponse,
+)
+def book_appointment(
+    request: BookAppointmentRequest,
+    db: Session = Depends(get_db),
+    service: AIToolService = Depends(
+        get_ai_tool_service,
+    ),
+) -> BookAppointmentResponse:
+    return service.book_appointment(
         db=db,
         request=request,
     )

@@ -15,32 +15,86 @@ from app.modules.customers.schemas import (
 
 
 class CustomerService:
-
-    def __init__(self, repository: CustomerRepository):
+    def __init__(
+        self,
+        repository: CustomerRepository,
+    ):
         self.repository = repository
 
     def get_customer_or_raise(
-    self,
-    db: Session,
-    customer_id: UUID,
+        self,
+        db: Session,
+        customer_id: UUID,
     ) -> Customer:
-        customer = self.repository.get_by_id(db, customer_id)
-        if not customer:
+        """
+        Returns a customer by ID or raises CustomerNotFoundError.
+        """
+
+        customer = self.repository.get_by_id(
+            db=db,
+            customer_id=customer_id,
+        )
+
+        if customer is None:
             raise CustomerNotFoundError()
+
         return customer
-    
+
+    def get_customer(
+        self,
+        db: Session,
+        customer_id: UUID,
+    ) -> Customer:
+        """
+        Returns a customer by ID.
+        """
+
+        return self.get_customer_or_raise(
+            db=db,
+            customer_id=customer_id,
+        )
+
+    def get_or_create_by_phone(
+        self,
+        db: Session,
+        *,
+        phone_number: str,
+    ) -> Customer:
+        """
+        Returns an existing customer identified by phone number.
+        If no customer exists, a new customer record is created.
+        """
+
+        customer = self.repository.get_by_phone(
+            db=db,
+            phone_number=phone_number,
+        )
+
+        if customer:
+            return customer
+
+        customer = Customer(
+            name="Unknown Caller",
+            phone_number=phone_number,
+        )
+
+        return self.repository.create(
+            db=db,
+            customer=customer,
+        )
+
     def create_customer(
         self,
         db: Session,
         data: CustomerCreate,
     ) -> Customer:
         """
-        Create a new customer.
+        Creates a new customer.
         """
 
         existing_customer = self.repository.get_by_phone(
-            db,
-            data.phone,
+            db=db,
+            phone_number=data.phone,
         )
 
         if existing_customer:
@@ -53,25 +107,17 @@ class CustomerService:
             notes=data.notes,
         )
 
-        return self.repository.create(db, customer)
-
-    def get_customer(
-        self,
-        db: Session,
-        customer_id: UUID,
-    ) -> Customer:
-        """
-        Get a customer by ID.
-        """
-        customer = self.get_customer_or_raise(db, customer_id)
-        return customer
+        return self.repository.create(
+            db=db,
+            customer=customer,
+        )
 
     def list_customers(
         self,
         db: Session,
     ) -> list[Customer]:
         """
-        Return all customers.
+        Returns all customers.
         """
 
         return self.repository.get_all(db)
@@ -83,41 +129,51 @@ class CustomerService:
         data: CustomerUpdate,
     ) -> Customer:
         """
-        Update customer information.
+        Updates customer information.
         """
 
-        customer = self.repository.get_by_id(
-            db,
-            customer_id,
+        customer = self.get_customer_or_raise(
+            db=db,
+            customer_id=customer_id,
         )
 
-        if not customer:
-            raise CustomerNotFoundError()
-
-        # Prevent duplicate phone numbers
         if (
             data.phone
             and data.phone != customer.phone_number
         ):
             existing_customer = self.repository.get_by_phone(
-                db,
-                data.phone,
+                db=db,
+                phone_number=data.phone,
             )
 
-            if existing_customer:
+            if (
+                existing_customer
+                and existing_customer.id != customer.id
+            ):
                 raise CustomerAlreadyExistsError()
 
-        # Update only provided fields
         update_data = data.model_dump(
-            exclude_unset=True
+            exclude_unset=True,
         )
 
+        phone = update_data.pop(
+            "phone",
+            None,
+        )
+
+        if phone is not None:
+            customer.phone_number = phone
+
         for field, value in update_data.items():
-            setattr(customer, field, value)
+            setattr(
+                customer,
+                field,
+                value,
+            )
 
         return self.repository.update(
-            db,
-            customer,
+            db=db,
+            customer=customer,
         )
 
     def delete_customer(
@@ -126,46 +182,15 @@ class CustomerService:
         customer_id: UUID,
     ) -> None:
         """
-        Delete a customer.
+        Deletes a customer.
         """
 
-        customer = self.repository.get_by_id(
-            db,
-            customer_id,
+        customer = self.get_customer_or_raise(
+            db=db,
+            customer_id=customer_id,
         )
-
-        if not customer:
-            raise CustomerNotFoundError()
 
         self.repository.delete(
-            db,
-            customer,
-        )
-    
-    def get_or_create_by_phone_number(
-        self,
-        db: Session,
-        *,
-        phone_number: str) -> Customer:
-        """
-            Returns an existing customer by phone number or creates
-            a new customer if one does not exist.
-        """
-
-        customer = self.repository.get_by_phone_number(
-            db=db,
-            phone_number=phone_number,
-        )
-
-        if customer:
-            return customer
-
-        customer = Customer(
-            name=phone_number,
-            phone_number=phone_number,
-        )
-
-        return self.repository.create(
             db=db,
             customer=customer,
         )

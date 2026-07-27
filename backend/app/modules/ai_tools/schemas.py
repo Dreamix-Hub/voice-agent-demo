@@ -1,8 +1,8 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
-
+from app.modules.appointments.service import AppointmentStatus
 
 class CheckAvailabilityRequest(BaseModel):
     """
@@ -28,26 +28,6 @@ class CheckAvailabilityResponse(BaseModel):
 
     available_slots: list[AvailableSlot] = Field(default_factory=list)
 
-
-class BookAppointmentRequest(BaseModel):
-    """
-    Request sent by the AI to book an appointment.
-    """
-
-    customer_id: UUID
-    start_time: datetime
-
-
-class BookAppointmentResponse(BaseModel):
-    """
-    Response returned after successfully booking an appointment.
-    """
-
-    appointment_id: UUID
-    start_time: datetime
-    end_time: datetime
-
-
 class CancelAppointmentRequest(BaseModel):
     appointment_id: UUID
 
@@ -65,3 +45,18 @@ class RescheduleAppointmentResponse(BaseModel):
     appointment_id: UUID
     start_time: datetime
     end_time: datetime
+    
+class BookAppointmentRequest(BaseModel):
+    phone_number: str
+    appointment_date: date
+    start_time: time
+    reason: str
+    notes: str | None = None
+
+
+class BookAppointmentResponse(BaseModel):
+    appointment_id: UUID
+    appointment_date: date
+    start_time: time
+    end_time: time
+    status: AppointmentStatus

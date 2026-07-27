@@ -12,20 +12,25 @@ from app.modules.appointments.service import AppointmentService
 from app.core.dependencies.business import (
     get_business_service
 )
-from datetime import datetime, timedelta
+from app.modules.ai_tools.schemas import (
+    BookAppointmentRequest,
+    BookAppointmentResponse,
+)
+from app.modules.appointments.schemas import AppointmentCreate
+from app.modules.customers.service import CustomerService
+from datetime import  timedelta
+from typing import cast
+from uuid import UUID
 
 class AIToolService:
-    """
-    Exposes business capabilities to AI providers
-    such as Retell, OpenAI, or Vapi.
-    """
-
     def __init__(
         self,
         appointment_service: AppointmentService,
+        customer_service: CustomerService,
     ):
         self.appointment_service = appointment_service
-
+        self.customer_service = customer_service
+        
     def check_availability(
         self,
         db: Session,
@@ -51,3 +56,38 @@ class AIToolService:
                 for slot in slots
             ]
         )
+        
+    def book_appointment(
+        self,
+        db: Session,
+        *,
+        request: BookAppointmentRequest,
+) -> BookAppointmentResponse:
+        """
+            Books an appointment for the customer associated with
+            the active conversation.
+        """
+
+        customer = self.customer_service.get_or_create_by_phone(
+            db=db,
+            phone_number=request.phone_number
+        )
+
+        appointment = self.appointment_service.create_appointment(
+            db=db,
+            data=AppointmentCreate(
+                customer_id=cast(UUID, customer.id),
+                appointment_date=request.appointment_date,
+                start_time=request.start_time,
+                reason=request.reason,
+                notes=request.notes,
+        ),
+    )
+
+        return BookAppointmentResponse(
+            appointment_id=appointment.id,
+            appointment_date=appointment.appointment_date,
+            start_time=appointment.start_time,
+            end_time=appointment.end_time,
+            status=appointment.status,
+    )
