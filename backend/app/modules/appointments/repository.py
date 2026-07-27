@@ -9,7 +9,7 @@ from app.modules.appointments.models import (
     Appointment,
     AppointmentStatus,
 )
-
+from uuid import UUID
 class AppointmentRepository:
 
     def create(
@@ -133,3 +133,59 @@ class AppointmentRepository:
     )
 
         return list(db.scalars(statement).all())
+    
+    
+#     def get_customer_appointment_by_date(
+#     self,
+#     db: Session,
+#     *,
+#     customer_id: UUID,
+#     appointment_date: date,
+# ) -> Appointment | None:
+
+#         appointments = (
+#             db.query(Appointment)
+#             .filter(Appointment.customer_id == customer_id)
+#             .all()
+#         )
+
+#         print("Searching for:", customer_id, appointment_date)
+#         print("Appointments found:", len(appointments))
+
+#         for appointment in appointments:
+#             print(
+#                 {
+#                     "id": appointment.id,
+#                     "customer_id": appointment.customer_id,
+#                     "date": appointment.appointment_date,
+#                     "status": appointment.status,
+#                 }
+#             )
+
+#         return (
+#             db.query(Appointment)
+#             .filter(
+#                 Appointment.customer_id == customer_id,
+#                 Appointment.appointment_date == appointment_date,
+#                 Appointment.status == AppointmentStatus.BOOKED,
+#             )
+#             .first()
+#         )
+    
+    def get_customer_appointment_by_date(
+    self,
+    db: Session,
+    *,
+    customer_id: UUID,
+    appointment_date: date,
+) -> Appointment | None:
+        return (
+            db.query(Appointment)
+            .filter(
+                Appointment.customer_id == customer_id,
+                Appointment.appointment_date == appointment_date,
+                Appointment.status == AppointmentStatus.BOOKED,
+            )
+            .first()
+    )
+

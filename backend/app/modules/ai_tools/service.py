@@ -4,6 +4,10 @@ from app.modules.ai_tools.schemas import (
     CheckAvailabilityRequest,
     CheckAvailabilityResponse,
     AvailableSlot,
+    BookAppointmentRequest,
+    BookAppointmentResponse,
+    CancelAppointmentRequest,
+    CancelAppointmentResponse
 )
 from app.modules.appointments.commands import (
     GetAvailableSlotsCommand,
@@ -12,12 +16,9 @@ from app.modules.appointments.service import AppointmentService
 from app.core.dependencies.business import (
     get_business_service
 )
-from app.modules.ai_tools.schemas import (
-    BookAppointmentRequest,
-    BookAppointmentResponse,
-)
 from app.modules.appointments.schemas import AppointmentCreate
 from app.modules.customers.service import CustomerService
+from app.core.dependencies.conversation import ConversationService
 from datetime import  timedelta
 from typing import cast
 from uuid import UUID
@@ -27,9 +28,11 @@ class AIToolService:
         self,
         appointment_service: AppointmentService,
         customer_service: CustomerService,
+        conversation_service: ConversationService,
     ):
         self.appointment_service = appointment_service
         self.customer_service = customer_service
+        self.conversation_service = conversation_service
         
     def check_availability(
         self,
@@ -91,3 +94,34 @@ class AIToolService:
             end_time=appointment.end_time,
             status=appointment.status,
     )
+    
+    def cancel_appointment(
+    self,
+    db: Session,
+    *,
+    request: CancelAppointmentRequest,
+) -> CancelAppointmentResponse:
+        """
+        Cancels the customer's appointment for the given date.
+        """
+    
+        conversation = self.conversation_service.get_by_external_call_id(
+            db=db,
+            external_call_id=request.external_call_id,
+        )
+    
+        appointment = self.appointment_service.get_customer_appointment_by_date(
+            db=db,
+            customer_id=conversation.customer_id,
+            appointment_date=request.appointment_date,
+        )
+    
+        appointment = self.appointment_service.cancel_appointment(
+            db=db,
+            appointment_id=appointment.id,
+        )
+    
+        return CancelAppointmentResponse(
+            appointment_id=appointment.id,
+            status=appointment.status,
+        )

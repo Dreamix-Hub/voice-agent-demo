@@ -9,6 +9,10 @@ from app.modules.customers.service import CustomerService
 from app.core.dependencies.customer import (
     get_customer_service
 )
+from app.core.dependencies.conversation import ConversationService
+from app.core.dependencies.conversation import (
+    get_conversation_service
+)
 
 def get_ai_tool_service(
     appointment_service: AppointmentService = Depends(
@@ -17,8 +21,12 @@ def get_ai_tool_service(
     customer_service: CustomerService = Depends(
         get_customer_service,
     ),
+    conversation_service: ConversationService = Depends(
+        get_conversation_service
+    )
 ) -> AIToolService:
     return AIToolService(
         appointment_service=appointment_service,
-        customer_service=customer_service
+        customer_service=customer_service,
+        conversation_service=conversation_service
     )

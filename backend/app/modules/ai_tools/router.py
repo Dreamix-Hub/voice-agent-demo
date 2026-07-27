@@ -11,7 +11,9 @@ from app.modules.ai_tools.schemas import (
 from app.modules.ai_tools.service import AIToolService
 from app.modules.ai_tools.schemas import (
     BookAppointmentRequest,
-    BookAppointmentResponse
+    BookAppointmentResponse,
+    CancelAppointmentResponse,
+    CancelAppointmentRequest
 )
 
 router = APIRouter(
@@ -52,6 +54,20 @@ def book_appointment(
     ),
 ) -> BookAppointmentResponse:
     return service.book_appointment(
+        db=db,
+        request=request,
+    )
+
+@router.post(
+    "/cancel-appointment",
+    response_model=CancelAppointmentResponse,
+)
+def cancel_appointment(
+    request: CancelAppointmentRequest,
+    db: Session = Depends(get_db),
+    service: AIToolService = Depends(get_ai_tool_service),
+) -> CancelAppointmentResponse:
+    return service.cancel_appointment(
         db=db,
         request=request,
     )

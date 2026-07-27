@@ -303,3 +303,31 @@ class AppointmentService:
             current += slot_duration
 
         return available_slots
+
+    def get_customer_appointment_by_date(
+    self,
+    db: Session,
+    *,
+    customer_id: UUID,
+    appointment_date: date,
+) -> Appointment:
+        """
+        Returns the customer's booked appointment for the given date.
+        """
+
+        # Ensure the customer exists
+        self.customer_service.get_customer(
+            db=db,
+            customer_id=customer_id,
+    )
+
+        appointment = self.repository.get_customer_appointment_by_date(
+            db=db,
+            customer_id=customer_id,
+            appointment_date=appointment_date,
+    )
+
+        if appointment is None:
+            raise AppointmentNotFoundError()
+
+        return appointment
