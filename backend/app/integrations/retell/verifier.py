@@ -64,4 +64,4 @@ class RetellWebhookVerifier:
             expected_signature,
             signature,
         ):
-            raise InvalidWebhookSignatureError()https://docs.retellai.com/features/webhook-overview
+            raise InvalidWebhookSignatureError()

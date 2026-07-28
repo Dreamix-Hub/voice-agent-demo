@@ -47,7 +47,7 @@ class RetellHandler:
         if webhook.call.start_timestamp is None:
             return
 
-        customer = self.customer_service.get_or_create_by_phone_number(
+        customer = self.customer_service.get_or_create_by_phone(
             db=db,
             phone_number=webhook.call.from_number,
         )
