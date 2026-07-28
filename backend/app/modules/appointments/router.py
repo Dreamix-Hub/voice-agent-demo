@@ -103,7 +103,6 @@ def update_appointment(
 ):
     appointment = appointment_service.update_appointment(
         db=db,
-        business_id=business_id,
         appointment_id=appointment_id,
         data=data,
     )
@@ -180,7 +179,6 @@ def get_customer_appointments(
     appointments = appointment_service.get_customer_appointments(
         db,
         customer_id,
-        business_id
     )
 
     return SuccessResponse(
