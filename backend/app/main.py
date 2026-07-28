@@ -2,7 +2,6 @@ from fastapi import FastAPI
 
 from app.core.exception_handlers import register_exception_handlers
 from app.api.v1.router import api_router
-from app.modules.webhooks import router as webhooks_router
 from app.modules.ai_tools import router as ai_tools_router
 from app.modules.retell import router as retell
 from app.core import settings
@@ -25,7 +24,6 @@ app.include_router(
     api_router,
     prefix="/api/v1",
 )
-app.include_router(webhooks_router.router)
 app.include_router(ai_tools_router.router)
 app.include_router(retell.router)
 

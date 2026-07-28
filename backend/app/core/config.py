@@ -6,9 +6,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     
     DATABASE_URL: str
-    OPENAI_API_KEY: str = ''
-    RETELL_API_KEY: str = ''
-    RETELL_WEBHOOK_SECRET: str = '' 
+    RETELL_API_KEY: str 
     
     ENVIRONMENT: Literal[
     "development",
