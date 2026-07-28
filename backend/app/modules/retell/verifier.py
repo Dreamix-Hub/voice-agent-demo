@@ -2,6 +2,9 @@ from retell import Retell
 
 
 class RetellWebhookVerifier:
+    """
+    Verifies incoming Retell webhook requests.
+    """
 
     def __init__(
         self,
@@ -16,9 +19,9 @@ class RetellWebhookVerifier:
         *,
         payload: bytes,
         signature: str,
-    ) -> bool:
+    ) -> None:
         """
-        Verifies the webhook signature.
+        Raises an exception if the webhook signature is invalid.
         """
 
         self.client.verify(
@@ -26,5 +29,3 @@ class RetellWebhookVerifier:
             body=payload,
             signature=signature,
         )
-
-        return True

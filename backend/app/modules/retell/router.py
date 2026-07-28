@@ -1,14 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+import json
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+)
 from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
-from app.modules.retell.dependencies import get_retell_service
+from app.modules.retell.dependencies import (
+    get_retell_service,
+    get_retell_webhook_verifier,
+)
 from app.modules.retell.schemas import (
     CallStartedRequest,
     CallEndedRequest,
     CallAnalyzedRequest,
 )
 from app.modules.retell.service import RetellService
+from app.modules.retell.verifier import (
+    RetellWebhookVerifier,
+)
 
 router = APIRouter(
     prefix="/retell",
@@ -21,8 +34,38 @@ async def webhook(
     request: Request,
     db: Session = Depends(get_db),
     service: RetellService = Depends(get_retell_service),
+    verifier: RetellWebhookVerifier = Depends(
+        get_retell_webhook_verifier,
+    ),
 ):
-    payload = await request.json()
+    # Read the raw request body
+    raw_body = await request.body()
+
+    # Get the Retell signature header
+    signature = request.headers.get(
+        "X-Retell-Signature",
+    )
+
+    if signature is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Missing Retell signature.",
+        )
+
+    # Verify webhook authenticity
+    try:
+        verifier.verify(
+            payload=raw_body,
+            signature=signature,
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Retell signature.",
+        )
+
+    # Parse the verified payload
+    payload = json.loads(raw_body)
 
     event = payload.get("event")
 
@@ -30,7 +73,7 @@ async def webhook(
         service.handle_call_started(
             db=db,
             request=CallStartedRequest.model_validate(
-                payload["call"]
+                payload["call"],
             ),
         )
         return {"success": True}
@@ -39,7 +82,7 @@ async def webhook(
         service.handle_call_ended(
             db=db,
             request=CallEndedRequest.model_validate(
-                payload["call"]
+                payload["call"],
             ),
         )
         return {"success": True}
@@ -48,7 +91,7 @@ async def webhook(
         service.handle_call_analyzed(
             db=db,
             request=CallAnalyzedRequest.model_validate(
-                payload["call"]
+                payload["call"],
             ),
         )
         return {"success": True}
