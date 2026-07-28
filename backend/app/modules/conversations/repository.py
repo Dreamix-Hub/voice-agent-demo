@@ -94,7 +94,7 @@ class ConversationRepository:
         self,
         db: Session,
         external_call_id: str,
-    ) -> bool:
+    )-> bool:
         return (
             db.query(Conversation.id)
             .filter(

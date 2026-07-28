@@ -3,7 +3,6 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from app.common.exceptions import (
-    ConversationAlreadyExistsError,
     ConversationNotFoundError,
 )
 from app.modules.appointments.service import AppointmentService
@@ -47,12 +46,14 @@ class ConversationService:
             db=db,
             customer_id=command.customer_id,
         )
-
-        if self.repository.exists_by_external_call_id(
+        
+        existing = self.repository.get_by_external_call_id(
             db=db,
             external_call_id=command.external_call_id,
-        ):
-            raise ConversationAlreadyExistsError()
+        )
+
+        if existing:
+            return existing
 
         conversation = Conversation(
             customer_id=customer.id,
@@ -68,19 +69,18 @@ class ConversationService:
         )
 
     def complete_conversation(
-        self,
-        db: Session,
-        *,
-        command: CompleteConversationCommand,
+    self,
+    db: Session,
+    *,
+    command: CompleteConversationCommand,
     ) -> Conversation:
-        """
-        Marks a conversation as completed.
-        """
-
         conversation = self.get_by_external_call_id(
             db=db,
             external_call_id=command.external_call_id,
         )
+
+        if conversation.status == ConversationStatus.COMPLETED:
+            return conversation
 
         conversation.status = ConversationStatus.COMPLETED
         conversation.ended_at = command.ended_at
@@ -92,15 +92,11 @@ class ConversationService:
         )
 
     def attach_content(
-        self,
-        db: Session,
-        *,
-        command: AttachConversationContentCommand,
+    self,
+    db: Session,
+    *,
+    command: AttachConversationContentCommand,
     ) -> Conversation:
-        """
-        Stores transcript, AI summary and recording URL.
-        """
-
         conversation = self.get_by_external_call_id(
             db=db,
             external_call_id=command.external_call_id,
@@ -109,25 +105,34 @@ class ConversationService:
         if conversation.content is None:
             conversation.content = ConversationContent()
 
-        conversation.content.transcript = command.transcript
-        conversation.content.ai_summary = command.ai_summary
-        conversation.content.recording_url = command.recording_url
+        if (
+            command.transcript is not None
+            and conversation.content.transcript is None
+        ):
+            conversation.content.transcript = command.transcript
+
+        if (
+            command.ai_summary is not None
+            and conversation.content.ai_summary is None
+        ):
+            conversation.content.ai_summary = command.ai_summary
+
+        if (
+            command.recording_url is not None
+            and conversation.content.recording_url is None
+        ):
+            conversation.content.recording_url = command.recording_url
 
         return self.repository.update(
             db=db,
             conversation=conversation,
         )
-
     def link_appointment(
-        self,
-        db: Session,
-        *,
-        command: LinkAppointmentCommand,
+    self,
+    db: Session,
+    *,
+    command: LinkAppointmentCommand,
     ) -> Conversation:
-        """
-        Links an appointment to a conversation.
-        """
-
         conversation = self.get_by_external_call_id(
             db=db,
             external_call_id=command.external_call_id,
@@ -138,13 +143,16 @@ class ConversationService:
             appointment_id=command.appointment_id,
         )
 
+        if conversation.appointment_id == appointment.id:
+            return conversation
+
         conversation.appointment_id = appointment.id
 
         return self.repository.update(
             db=db,
             conversation=conversation,
         )
-
+        
     def get_by_external_call_id(
         self,
         db: Session,
