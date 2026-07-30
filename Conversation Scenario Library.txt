@@ -1,0 +1,278 @@
+Conversation Scenario Library (CSL)
+Journey 1 — New Customer
+
+This journey assumes the AI has never interacted with the caller before.
+
+CSL-001
+
+First-time customer books an appointment
+
+CSL-002
+
+New customer asks business hours
+
+CSL-003
+
+New customer asks about services
+
+CSL-004
+
+New customer asks pricing
+
+CSL-005
+
+New customer books then asks another question
+
+CSL-006
+
+New customer hangs up halfway
+
+CSL-007
+
+New customer changes appointment while booking
+
+CSL-008
+
+New customer wants to speak to a human
+
+Journey 2 — Returning Customer
+
+The customer's phone number already exists.
+
+CSL-009
+
+Returning customer books appointment
+
+CSL-010
+
+Returning customer checks appointment
+
+CSL-011
+
+Returning customer cancels appointment
+
+CSL-012
+
+Returning customer reschedules appointment
+
+CSL-013
+
+Returning customer updates profile
+
+CSL-014
+
+Returning customer books another appointment
+
+CSL-015
+
+Returning customer has multiple appointments
+
+CSL-016
+
+Returning customer asks unrelated question
+
+Journey 3 — Appointment Problems
+CSL-017
+
+No appointments available
+
+CSL-018
+
+Requested time unavailable
+
+CSL-019
+
+Appointment already exists
+
+CSL-020
+
+Appointment outside business hours
+
+CSL-021
+
+Business closed
+
+CSL-022
+
+Appointment not found
+
+Journey 4 — General Business Questions
+CSL-023
+
+Opening hours
+
+CSL-024
+
+Location
+
+CSL-025
+
+Parking
+
+CSL-026
+
+Insurance
+
+CSL-027
+
+Services
+
+CSL-028
+
+Pricing
+
+CSL-029
+
+Holiday hours
+
+CSL-030
+
+Directions
+
+Journey 5 — Customer Corrections
+
+These are surprisingly common.
+
+CSL-031
+
+Customer changes date
+
+CSL-032
+
+Customer changes time
+
+CSL-033
+
+Customer changes reason
+
+CSL-034
+
+Customer changes everything
+
+CSL-035
+
+Customer says
+
+Actually never mind.
+
+Journey 6 — Real Conversation Behaviors
+
+These are what make an AI feel human.
+
+CSL-036
+
+Customer interrupts
+
+CSL-037
+
+Customer pauses
+
+CSL-038
+
+Customer says
+
+Umm...
+
+CSL-039
+
+Customer forgets information
+
+CSL-040
+
+Customer self-corrects
+
+Tuesday... sorry, Wednesday.
+
+CSL-041
+
+Customer speaks quickly
+
+CSL-042
+
+Customer repeats themselves
+
+Journey 7 — Difficult Calls
+CSL-043
+
+Angry customer
+
+CSL-044
+
+Frustrated customer
+
+CSL-045
+
+Confused customer
+
+CSL-046
+
+Silent customer
+
+CSL-047
+
+Tool failure
+
+CSL-048
+
+No internet/backend unavailable
+
+CSL-049
+
+Customer asks unsupported question
+
+CSL-050
+
+Customer refuses to answer questions
+
+Journey 8 — Multiple Intent Calls
+
+This is where most voice agents struggle.
+
+Example:
+
+Customer:
+
+I'd like to cancel tomorrow's appointment and book another one for next week.
+
+That's actually two workflows.
+
+CSL-051
+
+Cancel then book
+
+CSL-052
+
+Book then ask business hours
+
+CSL-053
+
+Reschedule then ask pricing
+
+CSL-054
+
+Update customer information then book
+
+CSL-055
+
+Appointment lookup then cancellation
+
+Journey 9 — Call Ending
+CSL-056
+
+Nothing else needed
+
+CSL-057
+
+Customer says thanks
+
+CSL-058
+
+Customer hangs up unexpectedly
+
+CSL-059
+
+AI summarizes actions
+
+CSL-060
+
+Professional goodbye
