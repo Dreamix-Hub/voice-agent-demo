@@ -65,3 +65,15 @@ class RescheduleAppointmentResponse(BaseModel):
     start_time: time
     end_time: time
     status: AppointmentStatus
+
+class GetCustomerAppointmentRequest(BaseModel):
+    external_call_id: str
+    appointment_date: date | None = None
+
+
+class GetCustomerAppointmentResponse(BaseModel):
+    appointment_date: date
+    start_time: time
+    end_time: time
+    status: str
+    reason: str | None = None

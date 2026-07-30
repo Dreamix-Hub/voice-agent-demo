@@ -1,16 +1,19 @@
 from sqlalchemy.orm import Session
 
 from app.modules.ai_tools.schemas import (
+    AvailableSlot,
     CheckAvailabilityRequest,
     CheckAvailabilityResponse,
-    AvailableSlot,
     BookAppointmentRequest,
     BookAppointmentResponse,
     CancelAppointmentRequest,
     CancelAppointmentResponse,
     RescheduleAppointmentRequest,
-    RescheduleAppointmentResponse
+    RescheduleAppointmentResponse,
+    GetCustomerAppointmentRequest,
+    GetCustomerAppointmentResponse,
 )
+
 from app.modules.appointments.commands import (
     GetAvailableSlotsCommand,
 )
@@ -162,4 +165,56 @@ class AIToolService:
             start_time=appointment.start_time,
             end_time=appointment.end_time,
             status=appointment.status,
+        )
+    
+    def get_customer_appointment(
+    self,
+    db: Session,
+    request: GetCustomerAppointmentRequest,
+) -> GetCustomerAppointmentResponse:
+
+        phone_number = (
+            self.conversation_service
+            .get_by_external_call_id(
+                db=db,
+                external_call_id=request.external_call_id,
+            )
+        )
+
+        customer = (
+            self.customer_service
+            .get_or_create_by_phone(
+                db=db,
+                phone_number=phone_number.external_call_id,
+            )
+        )
+
+        if request.appointment_date:
+
+            appointment = (
+                self.appointment_service
+                .get_customer_appointment_by_date(
+                    db=db,
+                    customer_id=cast(UUID,customer.id),
+                    appointment_date=request.appointment_date,
+                )
+            )
+
+        else:
+
+            appointment = (
+                self.appointment_service
+                .get_next_customer_appointment(
+                    db=db,
+                    customer_id=cast(UUID,customer.id),
+                )
+            )
+            
+
+        return GetCustomerAppointmentResponse(
+            appointment_date=appointment.appointment_date,
+            start_time=appointment.start_time,
+            end_time=appointment.end_time,
+            status=appointment.status.value,
+            reason=appointment.reason,
         )

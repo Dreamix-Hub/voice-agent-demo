@@ -160,7 +160,7 @@ Summarize
 
 Anything Else?
 
-## Appointment booking workflow
+## Appointment rescheduling workflow
 
 
 Reschedule

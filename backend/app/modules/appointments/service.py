@@ -408,3 +408,31 @@ class AppointmentService:
             raise AppointmentNotFoundError()
 
         return appointment
+    
+    def get_next_customer_appointment(
+    self,
+    db: Session,
+    *,
+    customer_id: UUID,
+) -> Appointment:
+        """
+        Returns the customer's next upcoming appointment.
+        """
+    
+        # Ensure customer exists
+        self.customer_service.get_customer(
+            db=db,
+            customer_id=customer_id,
+        )
+    
+        appointment = (
+            self.repository.get_next_customer_appointment(
+                db=db,
+                customer_id=customer_id,
+            )
+        )
+    
+        if appointment is None:
+            raise AppointmentNotFoundError()
+    
+        return appointment
