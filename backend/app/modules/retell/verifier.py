@@ -17,7 +17,7 @@ class RetellWebhookVerifier:
     def verify(
         self,
         *,
-        payload: bytes,
+        payload: str,
         signature: str,
     ) -> None:
         """

@@ -30,7 +30,6 @@ def get_retell_service(
     )
 
 
-
 def get_retell_webhook_verifier() -> RetellWebhookVerifier:
     return RetellWebhookVerifier(
         api_key=settings.RETELL_API_KEY,

@@ -40,6 +40,7 @@ async def webhook(
 ):
     # Read the raw request body
     raw_body = await request.body()
+    body = raw_body.decode("utf-8")
 
     # Get the Retell signature header
     signature = request.headers.get(
@@ -55,21 +56,22 @@ async def webhook(
     # Verify webhook authenticity
     try:
         verifier.verify(
-            payload=raw_body,
+            payload=body,
             signature=signature,
         )
     except Exception:
         raise HTTPException(
             status_code=401,
-            detail="Invalid Retell signature.",
         )
 
     # Parse the verified payload
-    payload = json.loads(raw_body)
+    payload = json.loads(body)
 
     event = payload.get("event")
 
     if event == "call_started":
+        print(json.dumps(payload, indent=2))
+        
         service.handle_call_started(
             db=db,
             request=CallStartedRequest.model_validate(
