@@ -16,15 +16,18 @@ from app.modules.retell.schemas import (
 from typing import cast
 from uuid import UUID
 
+from backend.app.common.utils.call_identity_service import CallIdentityService
 
 class RetellService:
     def __init__(
         self,
         customer_service: CustomerService,
         conversation_service: ConversationService,
+        call_identity_service: CallIdentityService
     ):
         self.customer_service = customer_service
         self.conversation_service = conversation_service
+        self.call_identity_service = call_identity_service
 
     def handle_call_started(
         self,
@@ -39,7 +42,7 @@ class RetellService:
 
         customer = self.customer_service.get_or_create_by_phone(
             db=db,
-            phone_number=request.from_number,
+            phone_number=self.call_identity_service.get_phone_number(request),
         )
 
         self.conversation_service.start_conversation(

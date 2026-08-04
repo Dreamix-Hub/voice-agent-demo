@@ -5,6 +5,7 @@ from pydantic import BaseModel
 class CallStartedRequest(BaseModel):
     call_id: str
     from_number: str
+    call_type: str
     started_at: datetime
 
 

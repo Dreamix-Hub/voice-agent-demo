@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str
     RETELL_API_KEY: str 
+    DEV_TEST_PHONE_NUMBER: str
     
     ENVIRONMENT: Literal[
     "development",

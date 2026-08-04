@@ -70,7 +70,7 @@ async def webhook(
     event = payload.get("event")
 
     if event == "call_started":
-        print(json.dumps(payload, indent=2))
+        print(json.dumps(payload, indent=2))   # <------------- temporary logging purpose
         
         service.handle_call_started(
             db=db,
